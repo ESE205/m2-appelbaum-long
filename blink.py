@@ -1,17 +1,32 @@
-import RPi.GPIO as GPIO    # Import Raspberry Pi GPIO library
-from time import sleep     # Import the sleep from time module
-GPIO.setwarnings(False)    # Ignore warning for now
-GPIO.setmode(GPIO.BOARD)   # Use physical pin numbering
+import RPi.GPIO as GPIO
+from time import sleep
+import argparse
 
-ITER_COUNT = 15  
-pin1 = 11
+GPIO.setwarnings(False)
+GPIO.setmode(GPIO.BOARD)
 
-GPIO.setup(pin1, GPIO.OUT, initial=GPIO.LOW)   
+def blink_led(pin, iterations):
+    for _ in range(iterations):
+        GPIO.output(pin, GPIO.HIGH)
+        sleep(1)
+        GPIO.output(pin, GPIO.LOW)
+        sleep(1)
 
-while ITER_COUNT > 0: # Run ITER_COUNT times
-   ITER_COUNT -= 1 # Decrement counter
-   GPIO.output(pin1, GPIO.HIGH) # Turn on
-   sleep(1)                     # Sleep for 1 second
-   GPIO.output(pin1, GPIO.LOW)  # Turn off
-   sleep(1)                     # Sleep for 1 second
-GPIO.cleanup()
+def main():
+    parser = argparse.ArgumentParser(description='Blink an LED on Raspberry Pi for a specified number of times.')
+    parser.add_argument('-n', '--iterations', type=int, default=5, help='Number of times to blink the LED')
+    parser.add_argument('-p', '--pin', type=int, default=11, help='GPIO pin number')
+    args = parser.parse_args()
+
+    pin = args.pin
+    iterations = args.iterations
+
+    GPIO.setup(pin, GPIO.OUT, initial=GPIO.LOW)
+
+    try:
+        blink_led(pin, iterations)
+    finally:
+        GPIO.cleanup()
+
+if __name__ == "__main__":
+    main()
